@@ -1,7 +1,7 @@
 default: typecheck test
 
 test:
-    uv run pytest
+    uv run pytest tests
 
 typecheck:
     uvx ty check --exclude "**/*.ipynb"
