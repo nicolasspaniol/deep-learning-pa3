@@ -1,4 +1,4 @@
-"""Shared report-only classification evaluation helpers."""
+"""Shared classification evaluation helpers."""
 
 import csv
 from collections.abc import Iterable
