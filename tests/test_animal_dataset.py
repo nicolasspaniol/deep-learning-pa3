@@ -1,12 +1,8 @@
-from pathlib import Path
-
 import pytest
 from PIL import Image
 
 from deep_learning_pa3.dataset import AnimalDataset, Split
-
-
-DATA_DIR = Path(__file__).resolve().parents[1] / "data"
+from deep_learning_pa3.paths import DATA_DIR
 
 
 @pytest.mark.parametrize(

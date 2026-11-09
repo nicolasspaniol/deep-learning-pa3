@@ -7,6 +7,8 @@ from typing import Any, Callable, Literal
 from PIL import Image
 from torch.utils.data import Dataset
 
+from deep_learning_pa3.paths import DATA_DIR
+
 
 Split = Literal["train", "val", "test_public"]
 
@@ -19,8 +21,8 @@ class AnimalDataset(Dataset[tuple[Any, int]]):
     Images are returned as RGB PIL images unless ``transform`` is provided.
 
     Args:
-        root: Dataset directory (defaults to ``./data`` relative to the
-            current working directory).
+        root: Dataset directory (defaults to the repository's ``data``
+            directory, independent of the current working directory).
         split: One of ``"train"``, ``"val"``, or ``"test_public"``.
         label_budget: Number of labels per class to use for training. Ignored
             for validation and test splits.
@@ -29,7 +31,7 @@ class AnimalDataset(Dataset[tuple[Any, int]]):
 
     def __init__(
         self,
-        root: str | Path = "./data",
+        root: str | Path = DATA_DIR,
         split: Split = "train",
         label_budget: Literal[1, 5, 20] = 20,
         transform: Callable[[Image.Image], Any] | None = None,
