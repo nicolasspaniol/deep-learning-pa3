@@ -1,7 +1,7 @@
 import argparse
 import random
 
-from deep_learning_pa3.paths import CLASSES_PATH, DATA_DIR
+from deep_learning_pa3.paths import CLASSES_PATH, DATA_DIR, OUTPUT_DIR
 from deep_learning_pa3.teachers_prompts import build_prompts
 
 
@@ -28,6 +28,10 @@ def main() -> None:
     sample_size = min(args.num_images, len(image_paths))
     selected_paths = random.Random(args.seed).sample(image_paths, sample_size)
 
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
     import open_clip
     import torch
     from PIL import Image
@@ -53,13 +57,21 @@ def main() -> None:
     tokenizer = open_clip.get_tokenizer(MODEL_ID)
     tokens = tokenizer(prompts).to(device)
 
+    columns = min(3, sample_size)
+    rows = (sample_size + columns - 1) // columns
+    figure, axes = plt.subplots(
+        rows, columns, figsize=(5 * columns, 4 * rows), squeeze=False
+    )
+    for axis in axes.flat:
+        axis.axis("off")
+
     with torch.inference_mode():
         text_features = model.encode_text(tokens, normalize=True)
 
-        print("image_id\tlabel\tscore")
-        for image_path in selected_paths:
+        for image_path, axis in zip(selected_paths, axes.flat):
             with Image.open(image_path) as image:
-                image_tensor = preprocess(image.convert("RGB")).unsqueeze(0).to(device)
+                rgb_image = image.convert("RGB")
+            image_tensor = preprocess(rgb_image).unsqueeze(0).to(device)
 
             image_features = model.encode_image(image_tensor, normalize=True)
             similarities = image_features @ text_features.T
@@ -68,7 +80,15 @@ def main() -> None:
             score, prediction = probabilities[0].max(dim=-1)
 
             label = class_names[prediction.item()]
-            print(f"{image_path.stem}\t{label}\t{score.item():.4f}", flush=True)
+            axis.imshow(rgb_image)
+            axis.set_title(f"{label}\nScore: {score.item():.4f}")
+
+    figure.tight_layout()
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_path = OUTPUT_DIR / "teacher_check.png"
+    figure.savefig(output_path, dpi=150)
+    plt.close(figure)
+    print(f"Saved predictions to {output_path}")
 
 
 if __name__ == "__main__":
