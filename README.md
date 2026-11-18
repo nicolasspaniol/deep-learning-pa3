@@ -1,6 +1,18 @@
 # deep-learning-pa3
+
 Third programming assignment for FGV EMAp's Deep Learning subject
 
 Instructions: [PDF](https://github.com/Erickslb/deep-learning-fgv-2026/blob/main/PAs/PA3.pdf)
 
 Course materials: [Notion](https://app.notion.com/p/Deep-Learning-2026-2-3bc7a88448a680eeb110ea3cd3931d48)
+
+## Deliverables
+
+| Deliverable | Link |
+|---|---|
+| Git repository | [nicolasspaniol/deep-learning-pa3](https://github.com/nicolasspaniol/deep-learning-pa3) |
+| `README.md` | [README.md](README.md) |
+| `predict.py` | [predict.py](predict.py) |
+| Weights | [weights/checkpoint](weights/checkpoint) |
+| `curva_orcamento.csv` | [outputs/curva_orcamento.csv](outputs/curva_orcamento.csv) |
+| `AI_LOG.md` | [AI_LOG.md](AI_LOG.md) |
