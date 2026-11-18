@@ -2,6 +2,7 @@ import argparse
 import csv
 from pathlib import Path
 from statistics import mean, stdev
+from typing import Literal
 
 import matplotlib
 import torch
@@ -16,7 +17,11 @@ from deep_learning_pa3.train_student import add_pseudo_labels
 from deep_learning_pa3.utils import SquareImageTensor
 
 
-BUDGET_SEEDS = {1: (42,), 5: (42, 43, 44), 20: (42,)}
+BUDGET_SEEDS: dict[Literal[1, 5, 20], tuple[int, ...]] = {
+    1: (42,),
+    5: (42, 43, 44),
+    20: (42,),
+}
 METHODS = ("baseline", "student")
 TEACHER_F1 = 0.2636530101299286  # BioCLIP zero-shot on test_public, from Parte 1.
 SUPERVISED_REFERENCE = 0.686
@@ -82,7 +87,9 @@ def plot_curve(results, output_dir):
     axis.axhline(TEACHER_F1, linestyle="--", color="tab:green", label="Professor BioCLIP")
     axis.axhline(SUPERVISED_REFERENCE, linestyle=":", color="0.35", label="Teto do monitor")
     axis.set_xscale("log")
-    axis.set_xticks(list(BUDGET_SEEDS), labels=list(BUDGET_SEEDS))
+    axis.set_xticks(
+        list(BUDGET_SEEDS), labels=[str(budget) for budget in BUDGET_SEEDS]
+    )
     axis.set(xlabel="Rótulos reais por classe", ylabel="F1 macro em test_public", ylim=(0, 1))
     axis.legend()
     figure.tight_layout()

@@ -1,6 +1,7 @@
 import argparse
 import csv
 from pathlib import Path
+from typing import Protocol, cast
 
 import matplotlib
 import torch
@@ -14,6 +15,10 @@ from deep_learning_pa3.resnet_classifier import ResNetClassifier
 from deep_learning_pa3.utils import SquareImageTensor
 
 
+class ImageEncoder(Protocol):
+    def encode_image(self, images: Tensor, normalize: bool = False) -> Tensor: ...
+
+
 class BioCLIPClassifier(nn.Module):
     """Return an image-to-prompt similarity for each PA3 class."""
 
@@ -23,8 +28,11 @@ class BioCLIPClassifier(nn.Module):
         self.register_buffer("text_features", text_features)
 
     def forward(self, images: Tensor) -> Tensor:
-        image_features = self.model.encode_image(images, normalize=True)
-        return image_features @ self.text_features.T
+        image_features = cast(ImageEncoder, self.model).encode_image(
+            images, normalize=True
+        )
+        text_features = cast(Tensor, self.text_features)
+        return image_features @ text_features.T
 
 
 def main() -> None:
@@ -70,7 +78,10 @@ def main() -> None:
     teacher, _, preprocess = open_clip.create_model_and_transforms(model_id, device=device)
     teacher.eval()
     tokenizer = open_clip.get_tokenizer(model_id)
-    tokens = tokenizer(build_prompts(class_names)).to(device)
+    tokens = tokenizer(build_prompts(class_names))
+    if not isinstance(tokens, torch.Tensor):
+        raise TypeError("BioCLIP tokenizer did not return a tensor")
+    tokens = tokens.to(device)
     with torch.inference_mode():
         text_features = teacher.encode_text(tokens, normalize=True)
     teacher_data = AnimalDataset(root=DATA_DIR, split="test_public", transform=preprocess)

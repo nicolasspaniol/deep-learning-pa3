@@ -55,7 +55,10 @@ def main() -> None:
     )
     model.eval()
     tokenizer = open_clip.get_tokenizer(MODEL_ID)
-    tokens = tokenizer(prompts).to(device)
+    tokens = tokenizer(prompts)
+    if not isinstance(tokens, torch.Tensor):
+        raise TypeError("BioCLIP tokenizer did not return a tensor")
+    tokens = tokens.to(device)
 
     columns = min(3, sample_size)
     rows = (sample_size + columns - 1) // columns
